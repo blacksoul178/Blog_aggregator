@@ -14,7 +14,12 @@ func handlerLogin(s *state, cmd command) error {
 		return fmt.Errorf("Username error: login requires exactly one username argument \n usage: %s <name>", cmd.Name) // added the usage 2nd line, clarifies the intended use on top of the error
 	}
 	name := cmd.Args[0]
-	err := s.cfg.SetUser(name)
+	user, err := s.db.GetUser(context.Background(), name)
+	if err != nil {
+		return fmt.Errorf("Username does not exist: %w", err)
+	}
+	fmt.Printf("user %s found\n", user)
+	err = s.cfg.SetUser(name)
 	if err != nil {
 		return fmt.Errorf("Couldn't set current user : %w", err)
 	}
@@ -40,7 +45,7 @@ func handlerRegister(s *state, cmd command) error {
 	if err != nil {
 		return fmt.Errorf("Error setting user: %w", err)
 	} else {
-		fmt.Printf("User %s created successfuly", user.Name)
+		fmt.Printf("User %s created successfuly\n", user.Name)
 	}
 	return nil
 
